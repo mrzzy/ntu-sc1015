@@ -1,0 +1,481 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/mrzzy/ntu-sc1015/blob/main/feat(model)%3A%20add%20xgboost%2C%20randomforest%20models%20%26%20review%20count%20feature\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# ML Modeling: Business Closure Prediction\n",
+        "Objective: Train a Machine Learning (ML) model to predict whether an Yelp business will close:\n",
+        "- Problem: **Binary Classification** Predict whether the Yelp business is labeled as _open_ or _closed_.\n",
+        "- Evaluation Metric: F1-Score,\n",
+        "- Dataset: [Yelp Dataset](https://www.yelp.com/dataset)"
+      ],
+      "metadata": {
+        "id": "HoIG3_zMRcto"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import numpy as np\n",
+        "import pandas as pd\n",
+        "import matplotlib.pyplot as plt\n",
+        "import seaborn as sns\n",
+        "\n",
+        "from typing import Generic\n",
+        "from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin\n",
+        "from imblearn.pipeline import Pipeline\n",
+        "from imblearn.under_sampling import RandomUnderSampler\n",
+        "from sklearn.compose import ColumnTransformer\n",
+        "from sklearn.preprocessing import StandardScaler, FunctionTransformer\n",
+        "from sklearn.model_selection import train_test_split, cross_validate\n",
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.ensemble import RandomForestClassifier\n",
+        "from xgboost import XGBClassifier\n",
+        "\n",
+        "sns.set_theme()"
+      ],
+      "metadata": {
+        "id": "v7z-EVkGWIrB"
+      },
+      "execution_count": 80,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Prepare Dataset"
+      ],
+      "metadata": {
+        "id": "uobjuwQ6KjkY"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Load Dataset\n",
+        "Load prepared Yelp Dataset"
+      ],
+      "metadata": {
+        "id": "Zaa22l5vLFtn"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "reviews_df = pd.read_parquet(\"https://ntu-sc1015-yelp.s3.ap-southeast-1.amazonaws.com/yelp_reviews.parquet/part-00000-tid-666118639932506010-9f727aa9-11e6-466d-9314-69664704543d-2119-1-c000.snappy.parquet\")"
+      ],
+      "metadata": {
+        "id": "u8rAOKE6KllC"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Regroup Data\n",
+        "Cardinality of `reviews_df` is at the _reviews level_. We are specfically interested in business features at the _business level_.\n",
+        "\n",
+        "Regroup data to the _business level_ and extract business features:\n"
+      ],
+      "metadata": {
+        "id": "a29yprTxVfW4"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "business_cols = reviews_df.columns[reviews_df.columns.str.startswith(\"business_\")]\n",
+        "review_counts = reviews_df.groupby(\"business_id\")[\"review_id\"].count()\n",
+        "business_df = reviews_df[business_cols].groupby(\"business_id\").first()\n",
+        "business_df[\"n_reviews\"]  = review_counts"
+      ],
+      "metadata": {
+        "id": "lKnj4B05WfNV"
+      },
+      "execution_count": 64,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Target Variable\n",
+        "Given Yelp dataset features, we are trying to whether `business_is_open`:\n",
+        "- `0` This business has **closed**\n",
+        "- `1` This business is still **open**.\n"
+      ],
+      "metadata": {
+        "id": "HNFpUOjxTxQF"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "target = \"business_is_open\"\n",
+        "targets = business_df[target]\n",
+        "features = business_df.columns[business_df.columns != target]\n",
+        "feature_df = business_df[features]"
+      ],
+      "metadata": {
+        "id": "o0pwEOlqUTMJ"
+      },
+      "execution_count": 65,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Split Dataset\n",
+        "Split dataset into train and test subsets using stratified random sampling to ensure consistent target distribution on train / test subsets."
+      ],
+      "metadata": {
+        "id": "QeSW-IJqdM1b"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "train_feature_df, test_feature_df, train_targets, test_targets = train_test_split(\n",
+        "    feature_df, targets, test_size=0.2, random_state=42, stratify=targets)"
+      ],
+      "metadata": {
+        "id": "YZS9VCB_dRXD"
+      },
+      "execution_count": 66,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Transform for ML\n",
+        "Apply transformations to data to convert it into a form suitable for Machine Learning."
+      ],
+      "metadata": {
+        "id": "CAtP2iZtLuVm"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### Target: Business Is Open\n",
+        "Observed that our target `business_is_open` is heavily skewed towards open (1)\n",
+        "businesses.\n"
+      ],
+      "metadata": {
+        "id": "gzempXlkQQvS"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "plt.title(\"business_is_open\")\n",
+        "train_targets.value_counts().plot(kind=\"barh\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 474
+        },
+        "id": "3df09oiaN7sQ",
+        "outputId": "3cbb747f-1709-4f46-c530-c3e45e477ca9"
+      },
+      "execution_count": 67,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<Axes: title={'center': 'business_is_open'}>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 67
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 640x480 with 1 Axes>"
+            ],
+            "image/png": "iVBORw0KGgoAAAANSUhEUgAAAjUAAAG4CAYAAAC90xYDAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjcuMSwgaHR0cHM6Ly9tYXRwbG90bGliLm9yZy/bCgiHAAAACXBIWXMAAA9hAAAPYQGoP6dpAAAlcUlEQVR4nO3de1xUdeL/8feAd3REfZSV5ia2gwoSKmGEjZcsb2SmmZV0kcpqyazWCis1t/bxMFe3CLfSzKzNsszuXspLiRfsoml22V3DS2BlhcAgXkDm8/ujH/N1HC+g4IyfXs/Hw0fNmTNnPpyPDC/PmTk4jDFGAAAAp7mwYA8AAACgJhA1AADACkQNAACwAlEDAACsQNQAAAArEDUAAMAKRA0AALACUQMAAKxA1AAAACsQNUANyMrKUnR0tHbv3n3KnjMjI0O9e/c+Zc9Xm9566y1FR0crPz8/2EMBcBojagAAgBXqBHsAAE7MY489Jlt+dduVV16pgQMHql69esEeCoDTGFEDnKbq1q0b7CHUmPDwcIWHhwd7GABOc5x+AmpQYWGhxowZoy5duqhbt256/PHHdeDAAUlSfn6+oqOj9dZbbwU8Ljo6WllZWb7be/bs0d///nf17t1bsbGxSkpK0siRI/XNN9/41jn8PTWV23/hhRf0+uuvq0+fPoqNjdXQoUP11VdfBTxnbm6u7r77biUmJqpTp04aMmSIli9f7rdOeXm5pk+frssvv1ydOnVSt27ddN1112nNmjW+dX799VeNGzdObrdbsbGx6t69u+68885qvT/mSO+p2bx5s2655RZ169ZNcXFx6t27t8aNG1flbVZavHixhgwZori4OHXr1k1jx47Vrl27/NbJyMhQ586dlZeXp1tuuUXx8fHq3r27pk+fHnA0zOv1as6cORo4cKA6deqkiy++WBMmTFBxcbHfer1799btt9+uL774QldffbU6deqkSy+9VO+88061vwYAVcORGqAG3XPPPWrVqpX++te/auPGjfr3v/8tj8ejKVOmVGs7EydO1IcffqjU1FS1a9dORUVFWr9+vXJzcxUTE3PMx37wwQcqLS3V8OHD5XA4NGvWLI0ePVrLli3zHd3ZsmWLrrvuOrVs2VK33XabGjVqpMWLFys9PV1ZWVm67LLLJEnTp0/XjBkzNGzYMMXFxWnPnj36+uuv9c033yg5OVmSNHr0aH3//fdKTU1Vq1attHv3bq1Zs0Y//fSTWrdufQJ7USooKNAtt9yiZs2aadSoUXI6ncrPz9fSpUurtZ233npL48aNU6dOnXTfffepoKBAL7/8sjZs2KB33nlHTqfTt25FRYVuvfVWXXDBBbr//vu1atUqZWVlqaKiQmPGjPGtN2HCBL399tsaMmSIbrjhBuXn52vu3Ln69ttv9dprr/kdQduxY4fGjBmjq6++WldddZUWLFigjIwMxcTE6M9//vMJ7RsAx2AAnLSnn37auFwuc8cdd/gtf/TRR43L5TLfffedycvLMy6XyyxYsCDg8S6Xyzz99NO+2127djWTJk065nM++OCDplevXr7bldtPTEw0RUVFvuXLli0zLpfLrFixwrfspptuMikpKebAgQO+ZV6v1wwfPtxcfvnlvmWDBg0yo0aNOuoYiouLjcvlMrNmzTrmWI9nwYIFxuVymby8PGOMMUuXLjUul8t89dVXJ7zNsrIyk5SUZFJSUsz+/ft9yz/++GPjcrlMZmamb9mDDz5oXC6Xeeyxx3zLvF6vGTVqlImJiTEFBQXGGGM+//xz43K5zHvvvef3XNnZ2QHLe/XqZVwul/n88899ywoKCkxsbKyZPHnyCX9dAI6O009ADRoxYoTf7dTUVElSdnZ2tbbjdDq1adOmgNMkVTFgwAA1bdrUdzshIUGSlJeXJ0kqKirSunXr1L9/f+3Zs0e7d+/W7t27VVhYqO7du2v79u2+53U6ndqyZYu2b99+xOdq0KCB6tatq88++yzg9MvJaNKkiSTpk08+UXl5+Qlt4+uvv1ZBQYGuu+461a9f37e8Z8+eioqK0ieffBLwmEPnz+FwaMSIESovL1dOTo4kacmSJWrSpImSk5N9+2337t2KiYlRo0aN9Omnn/pt7/zzz/ftf0lq3ry52rZt65sLADWL009ADfrTn/7kd7tNmzYKCwur9vVXxo4dq4yMDPXs2VMxMTHq0aOHBg8erHPPPfe4jz377LP9blcGjsfjkST98MMPMsYoMzNTmZmZR9xGQUGBWrZsqbvvvlt/+ctf1LdvX7lcLnXv3l1XXnml2rdvL0mqV6+exo4dqyeeeELJycm64IIL1LNnTw0ePFhnnHFGtb7mQyUmJqpv376aPn265syZo8TERPXp00dXXHFFlT8h9eOPP0qS2rZtG3BfVFSU1q9f77csLCwsYP9WPnbnzp2Sfj+dVFJSoqSkpCM+Z0FBgd/tw+dC+n0+ajIAAfwfogaoRQ6H44j/f6iKioqAZQMGDFBCQoKWLl2qNWvW6IUXXtDzzz+vrKws9ejR45jPebRPEZn//4ZXr9crSUpLS9Mll1xyxHXbtGkjSbrwwgu1dOlSLV++XGvWrNGbb76pl156SZMmTdKwYcMkSTfffLN69+6tZcuWafXq1crMzNTMmTP10ksvqWPHjscc69E4HA49/fTT2rhxoz7++GOtWrVKDz30kF588UW9/vrrioiIOKHtniyv16sWLVpo6tSpR7y/efPmfrf5RBdwahE1QA3asWOH37/2d+zYIa/Xq9atWwccMalUeUThcGeeeaZGjBihESNGqKCgQFdddZWee+6540bN8VSOr27durr44ouPu35kZKSGDh2qoUOHqrS0VKmpqcrKyvJFjfR7BKWlpSktLU3bt2/X4MGDNXv27KP+8K+q+Ph4xcfH695779X777+vsWPHatGiRX7PfTTnnHOOJGnbtm0BR1a2bdvmu7+S1+tVXl6e35Gdbdu2SZJatWrl+zpzcnLUpUsXNWjQ4KS+NgA1j/fUADVo7ty5frdfeeUVSZLb7Vbjxo3VrFkzffHFF37rvPrqq363KyoqVFJS4resRYsWOvPMM1VWVnbSY2zRooUSExP1+uuv65dffgm4/9Bf9VBYWOh3X0REhNq0aeMbx759+3wfWa/Upk0bRUREnNRYi4uLAz5K3aFDB0mq8nZjY2PVokULzZs3z+8xK1euVG5urnr27BnwmEPnzxijuXPnqm7dur4o6t+/vyoqKvTMM88EPPbgwYMBwQrg1OJIDVCD8vPzdccdd+iSSy7Rxo0b9d577yklJcX3HpRhw4Zp5syZevjhhxUbG6svvvjCdzSgUmlpqXr06KG+ffuqffv2atSokdauXavNmzcrIyOjRsY5ceJEXX/99briiit0zTXX6Nxzz9Vvv/2mjRs36ueff9Z7770nSRo4cKASExMVExOjyMhIbd682fdRc0navn27br75ZvXr10/nn3++wsPDtWzZMv32228aOHDgCY/v7bff1muvvaY+ffqoTZs2Ki0t1RtvvKHGjRvL7XZXaRt169bV2LFjNW7cOKWmpmrgwIG+j3S3atVKN998s9/69evX16pVq/Tggw8q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AFYgagAAgBWIGgAAYAWiBgAAWIGoAQAAViBqAACAFYgaAABgBaIGAABYgagBAABWIGoAAIAViBoAAGAFogYAAFiBqAEAAFYgagAAgBWIGgAAYAWiBgAAWIGoAQAAViBqAACAFYgaAABgBaIGAABYgagBAABWIGoAAIAViBoAAGCFOtV9wI4dO/TCCy9o06ZN2rJli6KiovTBBx/UxtgAAACqrNpRs2XLFq1cuVIXXHCBvF6vjDG1MS4AAIBqqfbpp969e2vlypV6+umnFRMTUxtjAgAAqLZqR01YGG/DAQAAoafap58AAMDpIzy85g5GVG6rJrdZk4gaAAAs5nQ2PC22WROIGgAALObx7FNFhbdGthUeHians6E8nn2KiKgfckdsiBoAACxWUeHVwYM1EzWHbjMUhVZiAQAAnCCiBgAAWKHap5/27dunlStXSpJ27typPXv2aMmSJZKkxMRENW/evGZHCAAAUAXVjpqCggKNGTPGb1nl7ZdfflndunWrmZEBAABUQ7WjpnXr1vrvf/9bG2MBAAA4YbynBgAAWIGoAQAAViBqAACAFYgaAABgBaIGAABYgagBAABWIGoAAIAViBoAAGAFogYAAFiBqAEAAFYgagAAgBWIGgAAYAWiBgAAWIGoAQAAViBqAACAFYgaAABgBaIGAABYgagBAABWIGoAAIAViBoAAGAFogYAAFiBqAEAAFYgagAAgBWIGgAAYAWiBgAAWIGoAQAAViBqAACAFYgaAABgBaIGAABYgagBAABWIGoAAIAViBoAAGAFogYAAFiBqAEAAFYgagAAgBWIGgAAYAWiBgAAWIGoAQAAVqgT7AFUat2ySbCHAACANf6IP1cdxhgT7EEYY+RwOII9DAAArFJR4VVR0V55vTXzo75OnTA1axahwsJSOZ0NFR4eWid8QuJIjcPhkMezTxUV3mAP5Q8rPDxMTmdD5iEEMBehg7kIDczDifN6TY0FzekgJKJG+r0mDx7kL2uwMQ+hg7kIHcxFaGAecDyhddwIAADgBBE1AADACkQNAACwAlEDAACsQNQAAAArEDUAAMAKRA0AALACUQMAAKxA1AAAACsQNQAAwApEDQAAsAJRAwAArEDUAAAAKxA1AADACkQNAACwAlEDAACsQNQAAAArEDUAAMAKRA0AALACUQMAAKxA1AAAACsQNQAAwApEDQAA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nHPOOfr222/9lu3cuVOFhYVq1aqVJF6fgiWU97vb7dZ//vMfbd++3bcsJydHRUVFR/1E41FV6wPgNaTywlWpqalm1apV5s033zQJCQlcfK+KHnnkEeNyuczs2bPNl19+6fen8voAlZ/7z8zMNOvWrTMTJkwwHTt2NBs2bPDbVlpamunRo4dZtGiRWb58+TEvsjR69Gizdu1aM2fOnKNeZCk2NtbMmTPHrF271owePdqqi1tVxbp16wKuU8Nc1L6KigozdOhQ06dPH98Fw6655hqTmJhofvnlF2PM/118b+LEiWbdunUmMzPTREdHm0WLFvlta/z48SYhIcG8+eabZtWqVSY1NfWoF9873mtYVefeFnPmzDEul8s89thjvovvpaSkmIsvvtjs3r3btx7fEzVv7969ZvHixWbx4sUmNTXV9OjRw3e78tpmobrfD7343ooVK8zChQtNjx49Tp+L7xnz+8XKbrrpJhMXF2eSkpLM5MmT/S7ig6Pr1auXcblcR/yTl5fnW++NN94wl112mYmJifH9ZTmcx+Mx48aNMwkJCSY+Pt7cddddR7wA4vr1682wYcNMbGyscbvdZsaMGX4X2DLGGK/Xa5577jnjdrtNbGysGTZsmLUv3kdzpKgxhrk4FQoKCszYsWNN165dTVxcnElLSzNbtmzxW6fy6qgxMTHmsssuM/Pnzw/YzoEDB8zkyZNNUlKSiYuLMzfffLP5/vvvA9ar6mtYVebeFl6v17z66qvmiiuuMPHx8SY5Odmkp6cfcf/xPVGz8vLyjvpzYd26db71QnW///zzz+auu+4y8fHxJiEhwYwbN86UlJRUez84jDnsxBkAAMBpiI90AwAAKxA1AADACkQNAACwAlEDAACsQNQAAAArEDUAAMAKRA0AALACUQMAAKxA1AAAACsQNQAAwApEDQAAsAJRAwAArPD/AA51WO/rYNzLAAAAAElFTkSuQmCC\n"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Correct for the class imbalance by randomly **undersampling** the majority class\n",
+        "to match no. of samples in the minority class.\n"
+      ],
+      "metadata": {
+        "id": "NSG4zgaHQ61S"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sampler = RandomUnderSampler(sampling_strategy=\"majority\", random_state=42)"
+      ],
+      "metadata": {
+        "id": "EfnGRGDcSKGb"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### Business Rating\n",
+        "`business_stars`\n",
+        "- In Exploratory Data Analysis (EDA), we have observed that `business_stars` is right skewed, hence `np.exp2()` is applied to correct the skew.\n",
+        "\n",
+        "#### No. of Reviews\n",
+        "`n_reviews`\n",
+        "- EDA shows that a good indicator of whether a business will close is the no. of reviews recieved by the business. In particular, if the business recieves no reviews, its highly likely to close."
+      ],
+      "metadata": {
+        "id": "NKtzfqIjKvYP"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "transform = ColumnTransformer(\n",
+        "  transformers=[\n",
+        "    (\"business_stars\", Pipeline(steps=[\n",
+        "        (\"unskew_exp2\", FunctionTransformer(np.exp2)),\n",
+        "    ]), [\"business_stars\"]),\n",
+        "    (\"passthrough\", \"passthrough\", [\"n_reviews\"]),\n",
+        "  ]\n",
+        ")"
+      ],
+      "metadata": {
+        "id": "Cyc-QduvZGnb"
+      },
+      "execution_count": 89,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "#### All Features\n",
+        "`StandardScaler` is applied to normalise feature values to a range suitable for ML models.\n"
+      ],
+      "metadata": {
+        "id": "gFMnRf_sdKLJ"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "scaler = StandardScaler()"
+      ],
+      "metadata": {
+        "id": "mqZswTr-dM6E"
+      },
+      "execution_count": 90,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# ML Modelling\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "44MgwS4SUhlu"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### ML Algorithms\n",
+        "Models will be built from the following ML Algorithms:"
+      ],
+      "metadata": {
+        "id": "DJPqzS4fU4u_"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "models = [\n",
+        "  LogisticRegression(),\n",
+        "  RandomForestClassifier(),\n",
+        "  XGBClassifier(),\n",
+        "]"
+      ],
+      "metadata": {
+        "id": "yFPlmVvfU0Q4"
+      },
+      "execution_count": 82,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Model Evaluation\n",
+        "Model evaluation be performed on the following metrics:\n",
+        "- F1-score: Harmonic Mean of Precision and Recall\n",
+        "- Precision\n",
+        "- Recall\n",
+        "- Accuracy\n",
+        "\n",
+        "Do to the presence of class imbalance, F1-score is choosen over Accuracy as the _core metric_ to benchmark Models for Model Selection."
+      ],
+      "metadata": {
+        "id": "p7SXLM8eg-Dj"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "metrics = [\n",
+        "  \"f1\",\n",
+        "  \"precision\",\n",
+        "  \"recall\",\n",
+        "  \"accuracy\",\n",
+        "]"
+      ],
+      "metadata": {
+        "id": "23Y7rInZM9lg"
+      },
+      "execution_count": 83,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Train & Evaluation Lifecycle\n",
+        "Group data transformation, model training & evaluation steps into a single objective function:\n",
+        "\n"
+      ],
+      "metadata": {
+        "id": "LdytArvSMhBx"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "\n",
+        "def train_eval(model: BaseEstimator, feature_df: pd.DataFrame, targets: pd.Series) -> pd.DataFrame:\n",
+        "  # group data transform & model steps in single pipeline\n",
+        "  pipeline = Pipeline(\n",
+        "    steps=[\n",
+        "      (\"sample_data\", sampler),\n",
+        "      (\"transform_data\", transform),\n",
+        "      (\"scale_data\", scaler),\n",
+        "      (\"model\", model),\n",
+        "    ]\n",
+        "  )\n",
+        "\n",
+        "  # train & evaluate model with metrics\n",
+        "  results = cross_validate(\n",
+        "      estimator=pipeline,\n",
+        "      X=feature_df,\n",
+        "      y=targets,\n",
+        "      scoring=metrics,\n",
+        "      cv=5,\n",
+        "      return_train_score=True,\n",
+        "      # cross validate on all CPU cores\n",
+        "      n_jobs=-1,\n",
+        "  )\n",
+        "\n",
+        "  # rename \"test_\" columns to \"valid_\" to reflect that they are derieved from validation set\n",
+        "  df = pd.DataFrame(results)\n",
+        "  df.columns = df.columns.str.replace(\"test_\", \"valid_\")\n",
+        "  df[\"pipeline\"] = str(pipeline)\n",
+        "  df[\"model\"] = str(model)\n",
+        "  return df\n"
+      ],
+      "metadata": {
+        "id": "SKTLBuA5X5xS"
+      },
+      "execution_count": 92,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%time\n",
+        "results_df = pd.concat([train_eval(m, train_feature_df, train_targets) for m in models])"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "kw8tprRzaQje",
+        "outputId": "fe51926b-7972-4f78-ee03-059b44c6d009"
+      },
+      "execution_count": 93,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "CPU times: user 19 s, sys: 2.46 s, total: 21.5 s\n",
+            "Wall time: 40.2 s\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "results_df.groupby(\"model\")[\"valid_f1\"].mean()"
+      ],
+      "metadata": {
+        "id": "680z5WlMM5Nn",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "85944023-fd29-40e5-acb8-eac20e19c19b"
+      },
+      "execution_count": 94,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "model\n",
+              "LogisticRegression()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               0.586900\n",
+              "RandomForestClassifier()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           0.617361\n",
+              "XGBClassifier(base_score=None, booster=None, callbacks=None,\\n              colsample_bylevel=None, colsample_bynode=None,\\n              colsample_bytree=None, device=None, early_stopping_rounds=None,\\n              enable_categorical=False, eval_metric=None, feature_types=None,\\n              gamma=None, grow_policy=None, importance_type=None,\\n              interaction_constraints=None, learning_rate=None, max_bin=None,\\n              max_cat_threshold=None, max_cat_to_onehot=None,\\n              max_delta_step=None, max_depth=None, max_leaves=None,\\n              min_child_weight=None, missing=nan, monotone_constraints=None,\\n              multi_strategy=None, n_estimators=None, n_jobs=None,\\n              num_parallel_tree=None, random_state=None, ...)    0.613042\n",
+              "Name: valid_f1, dtype: float64"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 94
+        }
+      ]
+    }
+  ]
+}
