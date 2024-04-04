@@ -112,7 +112,7 @@ Predicting whether a Yelp business will open or close is a Binary Classification
 Machine Learning ML algorithms selected for this data science task are therefore: Logistic Regression, Random Forest & eXtreme Gradient Boosting (XGBoost).
 
 ### Class Imbalance
-![[Yelp Dataset Class Imbalance.png]]  
+![Yelp Dataset Class Imbalance](assets/class_imbalance.png)
 Observing distribution of our target variable `business_is_open`, we can see a imbalance in of open (1) and closed (0) businesses. This imbalance is undesirable as it may cause the model to over bias towards the over represented class. Additionally class imbalance causes evaluation metrics, especially accuracy to become unreliable in determining actual model performance.
  
 To combat imbalance, random under sampling of the majority class is done to balance out the no. of examples between classes. Additionally F1 score, the harmonic mean between precision and recall is selected as the replacement metric to evaluate candidate models due to its robustness to class imbalance.
