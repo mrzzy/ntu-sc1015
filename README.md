@@ -111,7 +111,7 @@ Additionally, denationalisation of relationships is performed to form "one wide 
 3) What do people say about businesses that are Opened vs Closed?
 ### Text Analysis on Reviews Dataset
 ### Length of Reviews
-The length of reviews was counted by number of words separated by spaces. The violin plot shows the distribution of the length of reviews in the dataset. We can see that the distribution is right skewed. 
+The length of reviews was counted by number of words separated by spaces. The violin plot shows the distribution of the length of reviews in the dataset. We can see that the distribution is right skewed. \
 ![Text Length Distribution](assets/text_length_violin.png)
 
 Looking at the descriptive statistics, we see that most of the data lie between 37 - 122 words, which implies that the reviews tend to be short.
@@ -156,7 +156,7 @@ Hence, to answer the first question, we cannot conclude that closed businesses h
 
 ### Distribution of Total Review Count Among Businesses that are Open/Closed
 - `0` This business has **closed**
-- `1` This business is still **open**.
+- `1` This business is still **open** \
 ![Distribution of Total Review Count](assets/reviews_count_boxplot.png)
 From the Box Plot, we can see that Open businesses generally have higher number of reviews than closed businesses.
 
