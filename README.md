@@ -109,6 +109,10 @@ Additionally, denationalisation of relationships is performed to form "one wide 
 1) Do Closed businesses have more negative reviews?
 2) Do Open businesses have more reviews than Closed businesses?
 3) What do people say about businesses that are Opened vs Closed?
+4) Does the category of the business affect whether it will remain open or closed?
+5) Is the stars rating for each category influenced based on the number of business?
+6) Does opening business in different States matter?
+
 ### Text Analysis on Reviews Dataset
 ### Length of Reviews
 The length of reviews was counted by number of words separated by spaces. The violin plot shows the distribution of the length of reviews in the dataset. We can see that the distribution is right skewed. \
@@ -249,6 +253,65 @@ However, the negative reviews for the closed businesses commented that the busin
 
 Since food was mentioned as a common word, it seems many of these businesses are food establishments. This claim will be further explored in the later sections.
 
+## Question 4 Verdict
+
+Each business has several categories tagged and we needed a way to generalise the categories as there are `1312` number of unique categories and it is too complicated to analyze every single one.
+
+Thus we decided to do a word count to see spot for potential main category names for each business. However, you can see in the word cloud that there are a number of category names that are related to food and you won't be able to see much common signs of other category names. 
+
+![Category wordcloud](assets/category_wordcloud.png)
+
+We can hypothersize that majority of the business in the dataset are related to `Restaurants` and `Food` and we needed another way to extract out the main categories for each business. 
+
+We decided to check up on the yelp dataset category list online to see if there are any generalize main categories. [Yelp Dataset Categories](https://blog.yelp.com/businesses/yelp_category_list/). Surely enough they did seperate the business categories into  `main categories` and each of them had `sub categories`. Therefore we decided to use the `main categories` provided in the site for our generalization.
+
+------------------
+### Business Category Explanation
+
+`Restaurants` is categorized to businesses where you can sit down and have a meal, typically with table service or a counter where you can order your foods.
+
+`Food` is categorized as businesses that sell food items, but not necessarily in a sit-down dining format.
+
+------------------
+
+We first analyze the count for each main categories. We can clearly see that `Restaurants` has the highest number of business open of a count of `53886` and followed by `Food` with a count of `3444` business open. Next we can see that `Mass Media`, `Religious Organizations` and `Others` category has the lowest number of business open of less than `300`. We can clearly see which business is the most popular and which business is the least popular.
+
+Main category count: 
+![Main category count](assets/category_count.png)
+
+Next we take a look on how many business is still open or closed based on each main category. We can clearly see that `Restaurants` has the highest open and closed business of `36014` and `17872` respectively, followed by `Food` with `25712` open business and `8732` closed business. This can be explained as with higher number of business open, there will be a higher number of business closed due to proportion. 
+
+Main category count (seperated into open/closed):
+![Main cagtegory count per open](assets/category_count_is_open.png)
+
+So to examine the proportion of each category, since the range of number of business for each categories is very wide, we shall look at the proportion ratio of the number of `open business` against `total business` for each category.
+
+Main category ratio (percentage of open business per category):
+![Main category ratio for open](assets/category_ratio.png)
+
+We can observe that `Religious Organizations`, `Public Services & Government`, and `Mass Media` has the higher ratio of more than `0.95`. `Food`, `Nightlife`, and `Restaurants` has the lower ratio of less than `0.75`. This can be explain as with higher number of business based on that category, there will be a higher chance of the business closing as well with the possibility of higher competition among each business.
+
+## Question 5 Verdict
+![Stars Count](assets/star_counts.png)
+
+Based on the bar plot, we can see that the number of stars rating is proportion to the number of business open. We can see that `Restaurants` with the highest number of business open has the highest number of stars rating as well. Similarly, the next 2 highest number of business open is `Food` and `Shopping` respectively and their count of stars rating is the next 2 highest as well. Similarly, `Mass Media`, `Religious Organizations` and `Others` has the lowest number of business, so they have the lowest number of stars rating. Overall we can generally see that most of the stars rating are rated between `3.5` - `4.5`.
+
+## Question 6 Verdict
+Based on the bar plot of the count of business per state, we can see that `PA` has the highest number of businesses, with a total number of `34039`, followed by `FL` with a total number of `26330` businesses.
+
+However we can also see that there are several states that has less than 5 businesses. `CO`, `HI`, `MA`, `MI`, `MT`, `NC`, `SD`, `TX`, `UT`, `VI`, `VT`, `WA`, `XMS`. 
+
+Number of business per state:
+![States](assets/state_count.png)
+
+The yelp dataset may not have cover the businesses at those states mention above, thus explaning the low business level. Furthermore, the yelp dataset does not cover every states as there are a total of 50 states in the United States but there is clearly less than 50 based on the graph.
+
+Next we see if there is any patterns based on the number of open and closed business in each states. We can clearly see for those states with higher number of business in total, they have the higher amount of closed business as well. Similarly, for those states with low number of business, there are low number of closed business as well.
+
+Number of business per state (seperated into open/closed):
+![States per open/closed](assets/state_count_is_open.png)
+
+Thus overall, based on this dataset, we can say that `PA` and `FL` states are high consideration location for business owner to open up their business at. However, it is to note that it isn't the most accurate since there are states missing from the dataset and there are extremely low values for several dataset.
 
 ## Machine Learning
 ### Problem & ML Algorithms
