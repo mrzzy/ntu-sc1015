@@ -369,6 +369,18 @@ Prior evaluations of model have been performed on validation sets sampled from t
 
 A final evaluation of the best model's performance is performed on the a yet unseen test set to give a unbiased estimate of model performance and check for Hyperparameter overfitting.
 
+
+## Insights & Recommendation
+### Feature Importance
+Feature Importance values can be extracted from the XGBoost model ranking how _valuable_ each feature is to the model in making its prediction:
+
+![Feature Importance](assets/feature_importance.png)
+
+Observing the Feature Importance above, we conclude that the No. of reviews a business receives is the Key Predictor of a Yelp Business's ability to surivive.
+
+### Recommendation
+We recommend that Yelp business create incentives for users to post reviews on Yelp as the No. of reviews it receives is the key indicator of the longevity of the business. For example, a free desert could be given to customer upon completion of a Yelp review of the business to incentivise review submission.
+
 **References**
 
 [^1]: https://www.yelp.com/dataset/documentation/main
