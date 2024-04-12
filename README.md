@@ -5,7 +5,8 @@ NTU SC1015 Data Science Project
 ### Dataset Introduction
 The Yelp dataset is a subset of user-submitted data on the Yelp online review platform. It contains data about 150,346 businesses, 6,990,280 reviews spanning 11 metropolitan areas in the United States.
 
-The Yelp dataset is primary JSON documents linked by identifiers (eg `business_id`, `user_id` etc.): [^1]
+The Yelp dataset is composed of primarily JSON documents linked by identifiers (eg. `business_id`, `user_id` etc.)
+organised in a dimensional data model of fact (`Review`, `Checkin`, `Tip`) &amp; dimension (`Business`, `User`) tables: [^1]
 
 ```mermaid
 ---
@@ -156,7 +157,7 @@ business_is_open
 From the crosstab, we can see that the data is very biased to open businesses, and there are not many reviews for closed businesses.
 
 ## Question 1 Verdict
-Hence, to answer the first question, we cannot conclude that closed businesses have more negative reviews. This is because the total review count for closed businesses is much lower than Open businesses, which made the negative/positive review counts siginificantly lower than Open businesses.
+Hence, to answer the first question, we cannot conclude that closed businesses have more negative reviews. This is because the total review count for closed businesses is much lower than Open businesses, which made the negative/positive review counts significantly lower than Open businesses.
 
 ### Distribution of Total Review Count Among Businesses that are Open/Closed
 - `0` This business has **closed**
@@ -304,11 +305,11 @@ However we can also see that there are several states that has less than 5 busin
 Number of business per state:
 ![States](assets/state_count.png)
 
-The yelp dataset may not have cover the businesses at those states mention above, thus explaning the low business level. Furthermore, the yelp dataset does not cover every states as there are a total of 50 states in the United States but there is clearly less than 50 based on the graph.
+The yelp dataset may not have cover the businesses at those states mention above, thus explaining the low business level. Furthermore, the yelp dataset does not cover every states as there are a total of 50 states in the United States but there is clearly less than 50 based on the graph.
 
 Next we see if there is any patterns based on the number of open and closed business in each states. We can clearly see for those states with higher number of business in total, they have the higher amount of closed business as well. Similarly, for those states with low number of business, there are low number of closed business as well.
 
-Number of business per state (seperated into open/closed):
+Number of business per state (separated into open/closed):
 ![States per open/closed](assets/state_count_is_open.png)
 
 Thus overall, based on this dataset, we can say that `PA` and `FL` states are high consideration location for business owner to open up their business at. However, it is to note that it isn't the most accurate since there are states missing from the dataset and there are extremely low values for several dataset.
@@ -358,7 +359,10 @@ Based on F1 score tabulated above, XGBoost is selected as the ML Algorithm as it
 - `learning_rate` (0.1 - 0.5) Learning rate of each tree trained at the end of each boosting step.
 - `n_estimators` (1 - 4000) No. of rounds of boosting to perform.
 
-In particular, `reg_alpha`, `min_child_weight` , `subsample`, `learning_rate` are explored on a logarithmic scale to completely various orders of magnitude for these Hyperparameters.
+Successive Halving is applied to quickly try out hyperparameter combinations on a sample of the training data, eliminating unpromising combinations early tornonament style. This reserves more computational resources to
+exploring promising hyperparameter combinations, identified initial trails, in later trials with more data,  which are more computationally expensive.
+
+In particular, `reg_alpha`, `min_child_weight` , `subsample`, `learning_rate` are explored on a logarithmic scale to cover various orders of magnitude for these Hyperparameters.
 
 ### Hold Out Test Set
 Prior evaluations of model have been performed on validation sets sampled from the training data. This information has been used to tune Hyperparameters, which could have resulted in a overfit of Hyperparameters to training data.
