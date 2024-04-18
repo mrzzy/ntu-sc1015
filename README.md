@@ -1,5 +1,5 @@
-# NTU SC1015
-NTU SC1015 Data Science Project
+# Problem Statement: What Makes a Business Stay Open?
+As potential business owners with no ingenious business idea, what business should we open and how do we ensure it stays open? Using our new skills from SC1015, we attempt to take a data-driven approach to answer the question. The analysis will be based on a dataset provided by Yelp.
 
 ## Data Preparation
 ### Dataset Introduction
@@ -323,7 +323,7 @@ Thus overall, based on this dataset, we can say that `PA` and `FL` states are hi
 
 ## Machine Learning
 ### Problem & ML Algorithms
-Predicting whether a Yelp business will open or close is a Binary Classification problem:
+In order to answer what makes a business stay open, we have to model thie problem into a Binary Classification problem and predict whether a business will open or close:
 - `0` This business has **closed**
 - `1` This business is still **open**.
 
@@ -331,7 +331,7 @@ Machine Learning ML algorithms selected for this data science task are therefore
 
 ### Class Imbalance
 ![Yelp Dataset Class Imbalance](assets/class_imbalance.png)
-Observing distribution of our target variable `business_is_open`, we can see a imbalance in of open (1) and closed (0) businesses. This imbalance is undesirable as it may cause the model to over bias towards the over represented class. Additionally class imbalance causes evaluation metrics, especially accuracy to become unreliable in determining actual model performance.
+Observing distribution of our target variable `business_is_open`, we can see an imbalance of open (1) and closed (0) businesses. This imbalance is undesirable as it may cause the model to over bias towards the over represented class. Additionally class imbalance causes evaluation metrics, especially accuracy to become unreliable in determining actual model performance.
  
 To combat imbalance, random under sampling of the majority class is done to balance out the no. of examples between classes. Additionally F1 score, the harmonic mean between precision and recall is selected as the replacement metric to evaluate candidate models due to its robustness to class imbalance.
 
@@ -385,8 +385,14 @@ Feature Importance values can be extracted from the XGBoost model ranking how _v
 
 Observing the Feature Importance above, we conclude that the No. of reviews a business receives is the Key Predictor of a Yelp Business's ability to surivive.
 
-### Recommendation
-We recommend that Yelp business create incentives for users to post reviews on Yelp as the No. of reviews it receives is the key indicator of the longevity of the business. For example, a free desert could be given to customer upon completion of a Yelp review of the business to incentivise review submission.
+## What Category of Business To Open?
+According to our categories analysis, the category of businesses that are likely to stay open are: `Roger insert`
+
+## What Makes a Yelp Business Stay Open?
+According to the reviews analysis, in order for the business to stay open, the focus should be on delivering good food (assuming it is a food establishment), and providing good customer service. The business should also be situated in `Roger`: country 1, country 2, or country 3 for a good chance of staying open. \
+Yelp businesses that are currently open also tend to have many reviews. Hence, the business should focus on getting customers to leave feedback on Yelp. For example, a free desert could be given to customer upon completion of a Yelp review of the business to incentivise review submission. \
+A possible reason for this correlation could be because with more reviews, businesses will know where to improve on to satisfy their customers.
+
 
 **References**
 
