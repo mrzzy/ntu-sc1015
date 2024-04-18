@@ -386,10 +386,10 @@ Feature Importance values can be extracted from the XGBoost model ranking how _v
 Observing the Feature Importance above, we conclude that the No. of reviews a business receives is the Key Predictor of a Yelp Business's ability to surivive.
 
 ## What Category of Business To Open?
-According to our categories analysis, the category of businesses that are likely to stay open are: `Roger insert`
+According to our categories analysis, the category of businesses that are likely to stay open are: `Shopping`, `Home Services`, and `Health & Medical`.
 
 ## What Makes a Yelp Business Stay Open?
-According to the reviews analysis, in order for the business to stay open, the focus should be on delivering good food (assuming it is a food establishment), and providing good customer service. The business should also be situated in `Roger`: country 1, country 2, or country 3 for a good chance of staying open. \
+According to the reviews analysis, in order for the business to stay open, the focus should be on delivering good food (assuming it is a food establishment), and providing good customer service. The business should also be situated in `Pennsylvania` and `Florida` for a good chance of staying open. \
 Yelp businesses that are currently open also tend to have many reviews. Hence, the business should focus on getting customers to leave feedback on Yelp. For example, a free desert could be given to customer upon completion of a Yelp review of the business to incentivise review submission. \
 A possible reason for this correlation could be because with more reviews, businesses will know where to improve on to satisfy their customers.
 
