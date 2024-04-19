@@ -273,7 +273,7 @@ We tried using K-Means Clustering to potentially cluster similar categories toge
 
 It manage to cluster some categories, however there were some clusters that were still not clustered well and any remaining of the categories that wasn't able to be clustered are clustered into one. Overall, it was still hard to extract out main categories for our analysis so we decided to search online for possible yelp main categories.
 
-We decided to check up on the yelp dataset category list online to see if there are any generalize main categories. [Yelp Dataset Categories](https://blog.yelp.com/businesses/yelp_category_list/). Surely enough they did seperate the business categories into  `main categories` and each of them had `sub categories`. Therefore we decided to use the `main categories` provided in the site for our generalization.
+We decided to check up on the yelp dataset category list online to see if there are any generalize main categories. [Yelp Dataset Categories](https://blog.yelp.com/businesses/yelp_category_list/). Surely enough they did separate the business categories into  `main categories` and each of them had `sub categories`. Therefore we decided to use the `main categories` provided in the site for our generalization.
 
 ------------------
 ### Business Category Explanation
@@ -291,7 +291,7 @@ Main category count:
 
 Next we take a look on how many business is still open or closed based on each main category. We can clearly see that `Restaurants` has the highest open and closed business of `36014` and `17872` respectively, followed by `Food` with `25712` open business and `8732` closed business. This can be explained as with higher number of business open, there will be a higher number of business closed due to competitiveness. 
 
-Main category count (seperated into open/closed):
+Main category count (separated into open/closed):
 ![Main cagtegory count per open](assets/category_count_is_open.png)
 
 So to examine the proportion of each category, since the range of number of business for each categories is very wide, we shall look at the proportion ratio of the number of `open business` against `total business` for each category.
@@ -302,7 +302,7 @@ Main category ratio (percentage of open business per category):
 We can observe that `Religious Organizations`, `Public Services & Government`, and `Mass Media` has the higher ratio of more than `0.95`. `Food`, `Nightlife`, and `Restaurants` has the lower ratio of less than `0.75`. This can be explain as with higher number of business based on that category, there will be a higher chance of the business closing as well with the possibility of higher competition among each business. Comparing between the ratio and the category count, we can see the trend where with a low business count, there will be a higher ratio, while having a higher business count, there will be a lower ratio.
 
 ## Question 4 Verdict
-It is difficult to conclude that the category of business affects whether it will remain open. Even though there is a high business count in one category, it will logically have a higher possibility for that category of business to close due to competitiveness, while having low business count will result in a higher possiblity for that category of business to remain open. So it will be best to choose a business category where there is a balance in both the number of business in that category open and the possibility for that category to remain open when one is opening a business, like `Shopping` and `Home Services`.
+It is difficult to conclude that the category of business affects whether it will remain open. Even though there is a high business count in one category, it will logically have a higher possibility for that category of business to close due to competitiveness, while having low business count will result in a higher possibility for that category of business to remain open. So it will be best to choose a business category where there is a balance in both the number of business in that category open and the possibility for that category to remain open when one is opening a business, like `Shopping` and `Home Services`.
 
 ## Question 5: Does the location affect whether a business remain open?
 
@@ -323,7 +323,7 @@ Thus overall, based on this dataset, we can say that `PA` and `FL` states are hi
 
 ## Machine Learning
 ### Problem & ML Algorithms
-In order to answer what makes a business stay open, we have to model thie problem into a Binary Classification problem and predict whether a business will open or close:
+In order to answer what makes a business stay open, we have to model the problem into a Binary Classification problem and predict whether a business will open or close:
 - `0` This business has **closed**
 - `1` This business is still **open**.
 
