@@ -5,9 +5,12 @@
 As potential business owners with no ingenious business idea, what business should we open and how do we ensure it stays open? Using our new skills from SC1015, we attempt to take a data-driven approach to answer the question. The analysis will be based on a dataset provided by Yelp.
 
 ## Contributors
-- @mrzzy - Data Preperation, Machine Learning
+- @mrzzy - Data Preparation, Machine Learning
 - @jyorien - EDA Analsys (1 - 3)
 - @RogerKwek - EDA Analsys (4 - 5)
+
+## Data Preparation
+[Data Preparation](dataprep.ipynb): Dataset sampling & denormalisation with Apache Spark & Parquet.
 
 ## Exploratory Data Analysis Questions
 1) Do Closed businesses have more negative reviews? [Q1](https://github.com/mrzzy/ntu-sc1015/blob/main/nlp/sentiment_analysis.ipynb)
@@ -16,13 +19,11 @@ As potential business owners with no ingenious business idea, what business shou
 4) Does the Category of the Business Affect Whether it will Remain Open? [Q4](https://github.com/mrzzy/ntu-sc1015/blob/main/category%20and%20states/Categories.ipynb)
 5) Does Location Affect Whether a Business Remains Open? [Q5](https://github.com/mrzzy/ntu-sc1015/blob/main/category%20and%20states/States.ipynb)
 
-## Models
-1) Logistic Regression
-2) Random Forest
-3) XGBoost Classifier
+## Machine Learning
+[Modeling Notebook](model.ipynb): Class imbalance, Feature Engineering, Model Selection, Hyperparameter tuning and Model Analysis.
 
 ## Conclusion
-- Focus on getting customers to leave feedback for the business
+- Encourage customers to provide more feedback and reviews on Yelp.
 - Category of businesses that are likely to stay open are: `Shopping`, `Home Services`, and `Health & Medical`
 - Focus for business should be on delivering good food (assuming it is a food establishment), and providing good customer service
 - Business should be situated in `Pennsylvania` and `Florida` for a good chance of staying open
