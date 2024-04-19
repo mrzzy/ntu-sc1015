@@ -36,3 +36,7 @@ As potential business owners with no ingenious business idea, what business shou
 - https://docs.aws.amazon.com/sagemaker/latest/dg/xgboost-tuning.html
 - https://xgboost.readthedocs.io/en/stable/parameter.html
 - https://blog.yelp.com/businesses/yelp_category_list/
+
+**Appendix** 
+- [Detailed README with our analyses combined](https://github.com/mrzzy/ntu-sc1015/blob/main/detailed_README.md)
+
