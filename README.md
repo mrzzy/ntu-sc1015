@@ -3,7 +3,7 @@ As potential business owners with no ingenious business idea, what business shou
 
 ## Data Preparation
 ### Dataset Introduction
-The Yelp dataset is a subset of user-submitted data on the Yelp online review platform. It contains data about 150,346 businesses, 6,990,280 reviews spanning 11 metropolitan areas in the United States.
+The Yelp dataset is a subset of user-submitted data on the Yelp online review platform. It contains data from about 150,346 businesses, 6,990,280 reviews spanning 11 metropolitan areas in the United States.
 
 The Yelp dataset is composed of primarily JSON documents linked by identifiers (eg. `business_id`, `user_id` etc.)
 organised in a dimensional data model of fact (`Review`, `Checkin`, `Tip`) &amp; dimension (`Business`, `User`) tables: [^1]
@@ -100,7 +100,7 @@ erDiagram
 3.2G    yelp_academic_dataset_user.json
 ```
 
-In its original state, the Yelp dataset is not suitable for analysis as its relatively large. The full dataset cannot be loaded on a single machine. Sampling of the last 100 thousand reviews by review timestamp was performed with Apache Spark to reduce the data to a manageable size suitable for single node processing. Apache Spark scales data processing over multiple nodes and is therefore chosen to handle the large data volume.
+In its original state, the Yelp dataset is not suitable for analysis as it is relatively large. The full dataset cannot be loaded on a single machine. Sampling of the last 100 thousand reviews by review timestamp was performed with Apache Spark to reduce the data to a manageable size suitable for single node processing. Apache Spark scales data processing over multiple nodes and is therefore chosen to handle the large data volume.
 
 Additionally, denationalisation of relationships is performed to form "one wide table" of data for ease of analysis. An outer join is performed on the reviews-business relationship to preserve businesses with no reviews. Due to duplicate nature of denormalised data, the Parquet file format was chosen to store the dataset sample due to ability to better handle duplicates with its run-level / dictionary encoding and snappy compression features [^2].
 
@@ -110,8 +110,8 @@ Additionally, denationalisation of relationships is performed to form "one wide 
 1) Do Closed businesses have more negative reviews?
 2) Do Open businesses have more reviews than Closed businesses?
 3) What do people say about businesses that are Opened vs Closed?
-4) Does the category of the business affect whether it will remain open or closed?
-5) Does the location affect whether a business remain open?
+4) Does the Category of the Business Affect Whether it will Remain Open?
+5) Does Location Affect Whether a Business Remains Open?
 
 ## Question 1: Do Closed businesses have more negative reviews?
 
@@ -128,7 +128,7 @@ Looking at the descriptive statistics, we see that most of the data lie between 
 ```
 
 ### Sentiment Analysis
-To analyse the sentiment of the reviews, we used a deep learning model from `flair` to tag each review as "positive", "negative" or "neutral". We chose `flair` as it was a state of the art model and it was trained over movie and product reviews.
+To analyse the sentiment of the reviews, we used a deep learning model from [flair](https://flairnlp.github.io/) to tag each review as "positive", "negative" or "neutral". We chose `flair` as it was a state of the art model and it was trained over movie and product reviews.
 
 However, the `flair` model returned a `sentiment_score` and `sentiment_value` formatted like below respectively: \
 ```0.993694 NEGATIVE ```
@@ -257,7 +257,7 @@ However, the negative reviews for the closed businesses commented that the busin
 
 Since food was mentioned as a common word, it seems many of these businesses are food establishments. This claim will be further explored in the later sections.
 
-## Question 4: Does the category of the business affect whether it will remain open or closed?
+## Question 4: Does the Category of the Business Affect Whether it will Remain Open?
 
 There are a total of `1312` different unique categories in the dataset and each business is tag with multiple different categories. It is too complicated to analyze each categories, so we would want to scale down the categories into simpler main categories for easier analysis.
 
@@ -265,7 +265,7 @@ Thus we decided to do a word count to spot for potential main category names for
 
 ![Category wordcloud](assets/category_wordcloud.png)
 
-We can hypothersize that majority of the business in the dataset are related to `Restaurants` and `Food` and we needed another way to extract out the main categories for each business. 
+We can hypothesise that majority of the business in the dataset are related to `Restaurants` and `Food` and we needed another way to extract out the main categories for each business. 
 
 We tried using K-Means Clustering to potentially cluster similar categories together and spot potential main categories.
 
@@ -302,7 +302,7 @@ Main category ratio (percentage of open business per category):
 We can observe that `Religious Organizations`, `Public Services & Government`, and `Mass Media` has the higher ratio of more than `0.95`. `Food`, `Nightlife`, and `Restaurants` has the lower ratio of less than `0.75`. This can be explain as with higher number of business based on that category, there will be a higher chance of the business closing as well with the possibility of higher competition among each business. Comparing between the ratio and the category count, we can see the trend where with a low business count, there will be a higher ratio, while having a higher business count, there will be a lower ratio.
 
 ## Question 4 Verdict
-It is hard to conclude if the category of business will affect whether it will remain open or not. Even though there is a high business count in one category, it will logically have a higher possibility for that category of business to close due to competitiveness, while having low business count will result in a higher possiblity for that category of buisiness to remain open. So it will be best to choose on a business category where it has a balance in both the number of business in that category open and the possibility for that category to remain open when one is opening a business, like `Shopping` and `Home Services`.
+It is difficult to conclude that the category of business affects whether it will remain open. Even though there is a high business count in one category, it will logically have a higher possibility for that category of business to close due to competitiveness, while having low business count will result in a higher possiblity for that category of business to remain open. So it will be best to choose a business category where there is a balance in both the number of business in that category open and the possibility for that category to remain open when one is opening a business, like `Shopping` and `Home Services`.
 
 ## Question 5: Does the location affect whether a business remain open?
 
@@ -313,13 +313,13 @@ However we can also see that there are several states that has less than 5 busin
 Number of business per state:
 ![States](assets/state_count.png)
 
-Next we see if there is any patterns based on the number of open and closed business in each states. We can clearly see for those states with higher number of business in total, they have the higher amount of closed business as well. Similarly, for those states with low number of business, there are low number of closed business as well.
+Next we see if there is any pattern based on the number of open and closed business in each state. We can clearly see for those states with higher number of businesses in total, they have higher amounts of closed business as well. Similarly, for those states with low number of businesses, there are low number of closed business as well.
 
 Number of business per state (separated into open/closed):
 ![States per open/closed](assets/state_count_is_open.png)
 
 ## Question 5 Verdict
-Thus overall, based on this dataset, we can say that `PA` and `FL` states are high consideration location for business owner to open up their business at. However, it is to note that it isn't the most accurate since Yelp dataset only covers 11 metropolitan areas and there are States not covered from this dataset.
+Thus overall, based on this dataset, we can say that `PA` and `FL` states are high consideration location for business owner to open up their business at. However, it is to note that it is not the most accurate since Yelp dataset only covers 11 metropolitan areas and there are States not covered from this dataset.
 
 ## Machine Learning
 ### Problem & ML Algorithms
@@ -391,7 +391,7 @@ According to our categories analysis, the category of businesses that are likely
 ## What Makes a Yelp Business Stay Open?
 According to the reviews analysis, in order for the business to stay open, the focus should be on delivering good food (assuming it is a food establishment), and providing good customer service. The business should also be situated in `Pennsylvania` and `Florida` for a good chance of staying open. \
 Yelp businesses that are currently open also tend to have many reviews. Hence, the business should focus on getting customers to leave feedback on Yelp. For example, a free desert could be given to customer upon completion of a Yelp review of the business to incentivise review submission. \
-A possible reason for this correlation could be because with more reviews, businesses will know where to improve on to satisfy their customers.
+A possible reason for this correlation could be because with more reviews, businesses will know where to improve on to satisfy their customers. Another possible reason would be because with more positive reviews, other people may be more likely to patronise the business.
 
 
 **References**
