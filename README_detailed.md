@@ -118,7 +118,7 @@ Additionally, denationalisation of relationships is performed to form "one wide 
 ### Text Analysis on Reviews Dataset
 ### Length of Reviews
 The length of reviews was counted by number of words separated by spaces. The violin plot shows the distribution of the length of reviews in the dataset. We can see that the distribution is right skewed. \
-![Text Length Distribution](assets/text_length_violin.png)
+![Text Length Distribution](Assets/text_length_violin.png)
 
 Looking at the descriptive statistics, we see that most of the data lie between 37 - 122 words, which implies that the reviews tend to be short.
 ```
@@ -165,7 +165,7 @@ Hence, to answer the first question, we cannot conclude that closed businesses h
 ### Distribution of Total Review Count Among Businesses that are Open/Closed
 - `0` This business has **closed**
 - `1` This business is still **open** \
-![Distribution of Total Review Count](assets/reviews_count_boxplot.png)
+![Distribution of Total Review Count](Assets/reviews_count_boxplot.png)
 From the Box Plot, we can see that Open businesses generally have higher number of reviews than closed businesses.
 
 ## Question 2 Verdict
@@ -237,10 +237,10 @@ After getting the frequencies of the trigrams, we plotted the following wordclou
 The trigrams are joined with an underscore (_) to make it clear which words belong to which phrases (as the wordcloud might get messy)
 
 Wordcloud for Closed Businesses:
-![Closed Wordcloud](assets/closed_wordcloud.png)
+![Closed Wordcloud](Assets/closed_wordcloud.png)
 
 Wordcloud for Open Businesses:
-![Open Wordcloud](assets/open_wordcloud.png)
+![Open Wordcloud](Assets/open_wordcloud.png)
 
 To interpret the wordcloud: larger trigrams appear more frequently than smaller ones \
 We realise there are some overlap in what people say about closed vs open businesses such as "would_highly_recommend", "definitely_coming_back".\
@@ -263,13 +263,13 @@ There are a total of `1312` different unique categories in the dataset and each 
 
 Thus we decided to do a word count to spot for potential main category names for each business. However, most of the words shown are related to foods and restaurants and we could not see any other common signs of other type of categories.
 
-![Category wordcloud](assets/category_wordcloud.png)
+![Category wordcloud](Assets/category_wordcloud.png)
 
 We can hypothesise that majority of the business in the dataset are related to `Restaurants` and `Food` and we needed another way to extract out the main categories for each business. 
 
 We tried using K-Means Clustering to potentially cluster similar categories together and spot potential main categories.
 
-![K Means clustering](assets/kmeans.png)
+![K Means clustering](Assets/kmeans.png)
 
 It manage to cluster some categories, however there were some clusters that were still not clustered well and any remaining of the categories that wasn't able to be clustered are clustered into one. Overall, it was still hard to extract out main categories for our analysis so we decided to search online for possible yelp main categories.
 
@@ -287,17 +287,17 @@ We decided to check up on the yelp dataset category list online to see if there 
 We first analyze the count for each main categories. We can clearly see that `Restaurants` has the highest number of business open of a count of `53886` and followed by `Food` with a count of `3444` business open. Next we can see that `Mass Media`, `Religious Organizations` and `Others` category has the lowest number of business open of less than `300`. We can clearly see which business is the most popular and which business is the least popular.
 
 Main category count: 
-![Main category count](assets/category_count.png)
+![Main category count](Assets/category_count.png)
 
 Next we take a look on how many business is still open or closed based on each main category. We can clearly see that `Restaurants` has the highest open and closed business of `36014` and `17872` respectively, followed by `Food` with `25712` open business and `8732` closed business. This can be explained as with higher number of business open, there will be a higher number of business closed due to competitiveness. 
 
 Main category count (separated into open/closed):
-![Main cagtegory count per open](assets/category_count_is_open.png)
+![Main cagtegory count per open](Assets/category_count_is_open.png)
 
 So to examine the proportion of each category, since the range of number of business for each categories is very wide, we shall look at the proportion ratio of the number of `open business` against `total business` for each category.
 
 Main category ratio (percentage of open business per category):
-![Main category ratio for open](assets/category_ratio.png)
+![Main category ratio for open](Assets/category_ratio.png)
 
 We can observe that `Religious Organizations`, `Public Services & Government`, and `Mass Media` has the higher ratio of more than `0.95`. `Food`, `Nightlife`, and `Restaurants` has the lower ratio of less than `0.75`. This can be explain as with higher number of business based on that category, there will be a higher chance of the business closing as well with the possibility of higher competition among each business. Comparing between the ratio and the category count, we can see the trend where with a low business count, there will be a higher ratio, while having a higher business count, there will be a lower ratio.
 
@@ -311,12 +311,12 @@ Based on the bar plot of the count of business per state, we can see that `PA` h
 However we can also see that there are several states that has less than 5 businesses. `CO`, `HI`, `MA`, `MI`, `MT`, `NC`, `SD`, `TX`, `UT`, `VI`, `VT`, `WA`, `XMS`. 
 
 Number of business per state:
-![States](assets/state_count.png)
+![States](Assets/state_count.png)
 
 Next we see if there is any pattern based on the number of open and closed business in each state. We can clearly see for those states with higher number of businesses in total, they have higher amounts of closed business as well. Similarly, for those states with low number of businesses, there are low number of closed business as well.
 
 Number of business per state (separated into open/closed):
-![States per open/closed](assets/state_count_is_open.png)
+![States per open/closed](Assets/state_count_is_open.png)
 
 ## Question 5 Verdict
 Thus overall, based on this dataset, we can say that `PA` and `FL` states are high consideration location for business owner to open up their business at. However, it is to note that it is not the most accurate since Yelp dataset only covers 11 metropolitan areas and there are States not covered from this dataset.
@@ -330,7 +330,7 @@ In order to answer what makes a business stay open, we have to model the problem
 Machine Learning ML algorithms selected for this data science task are therefore: Logistic Regression, Random Forest & eXtreme Gradient Boosting (XGBoost).
 
 ### Class Imbalance
-![Yelp Dataset Class Imbalance](assets/class_imbalance.png)
+![Yelp Dataset Class Imbalance](Assets/class_imbalance.png)
 Observing distribution of our target variable `business_is_open`, we can see an imbalance of open (1) and closed (0) businesses. This imbalance is undesirable as it may cause the model to over bias towards the over represented class. Additionally class imbalance causes evaluation metrics, especially accuracy to become unreliable in determining actual model performance.
  
 To combat imbalance, random under sampling of the majority class is done to balance out the no. of examples between classes. Additionally F1 score, the harmonic mean between precision and recall is selected as the replacement metric to evaluate candidate models due to its robustness to class imbalance.
@@ -341,7 +341,7 @@ One hot encoding is applied to categorical features to convert such features int
 Additional feature engineering performed by feature
 - `business_stars` In Exploratory Data Analysis (EDA), we observed that `business_stars` is left skewed, hence `np.exp2()` is applied to correct the skew:
 
-![Business Stars Skew](assets/business_stars_skew.png)
+![Business Stars Skew](Assets/business_stars_skew.png)
 
 - `business_categories`
     - EDA shows that `business_categories` is especially high cardinality, making it unsuitable for direct one hot encoding due to the exceeding large no. of columns.
@@ -384,7 +384,7 @@ A final evaluation of the best model's performance is performed on the a yet uns
 ### Feature Importance
 Feature Importance values can be extracted from the XGBoost model ranking how _valuable_ each feature is to the model in making its prediction:
 
-![Feature Importance](assets/feature_importance.png)
+![Feature Importance](Assets/feature_importance.png)
 
 Observing the Feature Importance above, we conclude that the No. of reviews a business receives is the Key Predictor of a Yelp Business's ability to surivive.
 
