@@ -6,8 +6,8 @@ As potential business owners with no ingenious business idea, what business shou
 
 ## Contributors
 - @mrzzy - Data Preparation, Machine Learning
-- @jyorien - EDA Analsys (1 - 3)
-- @RogerKwek - EDA Analsys (4 - 5)
+- @jyorien - EDA Analysis (1 - 3)
+- @RogerKwek - EDA Analysis (4 - 5)
 
 ## Data Preparation
 [Data Preparation](dataprep.ipynb): Dataset sampling & denormalisation with Apache Spark & Parquet.
