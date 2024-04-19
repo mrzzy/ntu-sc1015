@@ -340,7 +340,8 @@ One hot encoding is applied to categorical features to convert such features int
 
 Additional feature engineering performed by feature
 - `business_stars` In Exploratory Data Analysis (EDA), we observed that `business_stars` is left skewed, hence `np.exp2()` is applied to correct the skew:
-![assets/business_stars_skew.png)
+
+![Business Stars Skew](assets/business_stars_skew.png)
 
 - `business_categories`
     - EDA shows that `business_categories` is especially high cardinality, making it unsuitable for direct one hot encoding due to the exceeding large no. of columns.
